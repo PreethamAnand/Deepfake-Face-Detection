@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Deepfake Detection Results{% endblock %}
+
+{% block header %}Detection Results{% endblock %}
+{% block subheader %}Analysis of your uploaded content{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Analysis Complete</h2>
+
+                <div class="text-center mb-4">
+                    {% if filename.lower().endswith(('.jpg', '.jpeg', '.png')) %}
+                    <div style="position: relative; display: inline-block;">
+                        <img id="uploaded-image" src="{{ url_for('static', filename='uploads/' + filename) }}"
+                            alt="Uploaded image" class="img-fluid rounded" style="max-height: 300px;">
+                        <canvas id="face-canvas" style="position: absolute; left: 0; top: 0;"></canvas>
+                    </div>
+                    {% else %}
+                    <div class="bg-dark rounded p-3">
+                        <video controls class="img-fluid rounded">
+                            <source src="{{ url_for('static', filename='uploads/' + filename) }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="text-center mb-4">
+                    {% if result.overall_result == 'fake' %}
+                    <div class="display-1 text-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h3 class="text-danger">Fake Face Detected</h3>
+                    <p class="lead">This content appears to be manipulated.</p>
+                    {% else %}
+                    <div class="display-1 text-success">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <h3 class="text-success">Real Face Detected</h3>
+                    <p class="lead">This content appears to be genuine.</p>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <h4>Analysis Details</h4>
+                    <ul class="list-group">
+                        {% if 'num_faces' in result %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Faces Detected
+                            <span class="badge bg-primary rounded-pill">{{ result.num_faces }}</span>
+                        </li>
+                        {% endif %}
+
+                        {% if 'num_frames_analyzed' in result %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Frames Analyzed
+                            <span class="badge bg-primary rounded-pill">{{ result.num_frames_analyzed }}</span>
+                        </li>
+                        {% endif %}
+
+                        {% if 'total_frames' in result %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total Frames
+                            <span class="badge bg-primary rounded-pill">{{ result.total_frames }}</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="alert alert-warning">
+                    <h5><i class="bi bi-exclamation-triangle-fill"></i> Important Note</h5>
+                    <p>
+                        This detection is based on AI analysis and may not be 100% accurate. The technology for both
+                        creating and detecting deepfakes is constantly evolving.
+                    </p>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('index') }}" class="btn btn-primary">Analyze Another File</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if filename.lower().endswith(('.jpg', '.jpeg', '.png')) and result.faces %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const img = document.getElementById('uploaded-image');
+        const canvas = document.getElementById('face-canvas');
+        const faces = {{ result.faces| tojson
+    }};
+    img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        faces.forEach(face => {
+            const [x, y, w, h] = face.bbox;
+            const scaleX = img.width / img.naturalWidth;
+            const scaleY = img.height / img.naturalHeight;
+            const sx = x * scaleX;
+            const sy = y * scaleY;
+            const sw = w * scaleX;
+            const sh = h * scaleY;
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = face.label === 'fake' ? 'red' : 'green';
+            ctx.strokeRect(sx, sy, sw, sh);
+            ctx.font = '16px Arial';
+            ctx.fillStyle = face.label === 'fake' ? 'red' : 'green';
+            ctx.fillText(face.label.toUpperCase(), sx, sy > 20 ? sy - 5 : sy + 20);
+        });
+    };
+    });
+</script>
+{% endif %}
+{% endblock %}

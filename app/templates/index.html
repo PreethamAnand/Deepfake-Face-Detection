@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Deepfake Face Detection - Home{% endblock %}
+
+{% block header %}Deepfake Face Detection{% endblock %}
+{% block subheader %}Upload an image or video to detect manipulated faces{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">Upload Media</h2>
+
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data"
+                    id="upload-form">
+                    <div class="mb-4">
+                        <div class="upload-area" id="upload-area">
+                            <img src="https://cdn-icons-png.flaticon.com/512/685/685686.png" alt="Upload" width="80"
+                                class="mb-3">
+                            <h4>Drag and drop or click to upload</h4>
+                            <p class="text-muted">Supported formats: JPG, PNG, MP4, AVI, MOV</p>
+                            <p class="text-muted">Max file size: 50MB</p>
+                            <input type="file" name="file" id="file-input" class="d-none"
+                                accept=".jpg,.jpeg,.png,.mp4,.avi,.mov" aria-label="Upload file"
+                                title="Upload an image or video file">
+                        </div>
+                    </div>
+
+                    <div id="file-info" class="mb-3 d-none">
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <i class="bi bi-file-earmark"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-1" id="selected-filename">filename.jpg</h5>
+                                    <p class="mb-0" id="selected-filesize">0 KB</p>
+                                </div>
+                                <button type="button" class="btn-close ms-auto" id="remove-file"
+                                    aria-label="Remove file" title="Remove selected file"></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" disabled>
+                            <span class="spinner-border spinner-border-sm d-none" id="loading-spinner"
+                                role="status"></span>
+                            Detect Deepfake
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">How It Works</h3>
+                <div class="row mt-4">
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="bg-light p-3 rounded-circle mx-auto"
+                            style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <span class="h3 mb-0">1</span>
+                        </div>
+                        <h5 class="mt-3">Upload Content</h5>
+                        <p class="text-muted">Upload an image or video file</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="bg-light p-3 rounded-circle mx-auto"
+                            style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <span class="h3 mb-0">2</span>
+                        </div>
+                        <h5 class="mt-3">AI Analysis</h5>
+                        <p class="text-muted">LSTM model analyzes facial features</p>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="bg-light p-3 rounded-circle mx-auto"
+                            style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <span class="h3 mb-0">3</span>
+                        </div>
+                        <h5 class="mt-3">Get Results</h5>
+                        <p class="text-muted">View detection results with confidence score</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload History Section -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Upload History</h3>
+                {% if history %}
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    {% for item in history %}
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src="{{ url_for('static', filename='uploads/' + item.filename) }}" class="card-img-top"
+                                alt="Uploaded image" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ item.timestamp }}</small>
+                                    <span
+                                        class="badge {% if item.result == 'real' %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if item.result == 'real' %}
+                                        👍 Real
+                                        {% else %}
+                                        👎 Fake
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0">
+                                <a href="{{ url_for('static', filename='uploads/' + item.filename) }}"
+                                    class="btn btn-sm btn-outline-primary w-100" target="_blank">
+                                    View Full Image
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">No uploads yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const fileInfo = document.getElementById('file-info');
+        const selectedFilename = document.getElementById('selected-filename');
+        const selectedFilesize = document.getElementById('selected-filesize');
+        const removeFileBtn = document.getElementById('remove-file');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const uploadForm = document.getElementById('upload-form');
+
+        // Handle click on upload area
+        uploadArea.addEventListener('click', function () {
+            fileInput.click();
+        });
+
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            uploadArea.classList.add('bg-light');
+        });
+
+        uploadArea.addEventListener('dragleave', function () {
+            uploadArea.classList.remove('bg-light');
+        });
+
+        uploadArea.addEventListener('drop', function (e) {
+            e.preventDefault();
+            uploadArea.classList.remove('bg-light');
+
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                updateFileInfo();
+            }
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', updateFileInfo);
+
+        // Handle remove file button
+        removeFileBtn.addEventListener('click', function () {
+            fileInput.value = '';
+            fileInfo.classList.add('d-none');
+            submitBtn.disabled = true;
+        });
+
+        // Handle form submission
+        uploadForm.addEventListener('submit', function () {
+            submitBtn.disabled = true;
+            loadingSpinner.classList.remove('d-none');
+        });
+
+        // Update file info when a file is selected
+        function updateFileInfo() {
+            if (fileInput.files.length) {
+                const file = fileInput.files[0];
+                selectedFilename.textContent = file.name;
+                selectedFilesize.textContent = formatFileSize(file.size);
+                fileInfo.classList.remove('d-none');
+                submitBtn.disabled = false;
+            } else {
+                fileInfo.classList.add('d-none');
+                submitBtn.disabled = true;
+            }
+        }
+
+        // Format file size for display
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    });
+</script>
+{% endblock %}

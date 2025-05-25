@@ -1,0 +1,7 @@
+Flask
+tensorflow==2.11.0
+opencv-python
+numpy
+pillow
+scikit-learn
+tqdm

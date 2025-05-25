@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}About Deepfake Detection{% endblock %}
+
+{% block header %}About This Project{% endblock %}
+{% block subheader %}Understanding deepfake detection with AI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">What are Deepfakes?</h2>
+                <p>
+                    Deepfakes are synthetic media where a person's likeness is replaced with someone else's using
+                    artificial intelligence. The technology uses deep learning algorithms to create
+                    realistic but fake images of people.
+                </p>
+                <p>
+                    While deepfakes can be used for entertainment and creative purposes, they also pose serious concerns
+                    including:
+                </p>
+                <ul>
+                    <li>Spreading misinformation and fake news</li>
+                    <li>Creating convincing but false evidence</li>
+                    <li>Identity theft and fraud</li>
+                    <li>Harassment and defamation</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Our Detection Method</h2>
+                <p>
+                    This application uses advanced machine learning techniques to identify deepfake content:
+                </p>
+
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>LSTM Neural Networks</h4>
+                                <p>
+                                    We use Long Short-Term Memory (LSTM) networks which are particularly effective at
+                                    analyzing facial features and patterns. Our model has been trained on a diverse
+                                    dataset
+                                    of real and fake images to accurately identify manipulated content.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Facial Feature Analysis</h4>
+                                <p>
+                                    Our system detects faces in images and extracts key features. These features are
+                                    then
+                                    analyzed for patterns that indicate manipulation, such as unnatural blending
+                                    boundaries or inconsistent facial features.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Key Features</h2>
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Easy to Use Interface</h4>
+                                <ul>
+                                    <li>Simple drag-and-drop upload</li>
+                                    <li>Support for common image formats (JPG, PNG)</li>
+                                    <li>Quick and clear results display</li>
+                                    <li>Upload history with result tracking</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4>Result Management</h4>
+                                <ul>
+                                    <li>Clear real/fake classification</li>
+                                    <li>Visual result indicators (👍/👎)</li>
+                                    <li>Upload history with timestamps</li>
+                                    <li>Easy access to previous uploads</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Limitations</h2>
+                <p>
+                    While our system uses state-of-the-art techniques, it's important to understand its limitations:
+                </p>
+                <ul>
+                    <li>Currently supports only image analysis (JPG, PNG formats)</li>
+                    <li>Works best with clear, well-lit facial images</li>
+                    <li>May occasionally produce false positives or negatives</li>
+                    <li>Requires a clear view of the face for best results</li>
+                </ul>
+                <p>
+                    Always use this tool as one part of your evaluation process, not as the sole determinant of
+                    authenticity.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h2 class="card-title">Responsible Use</h2>
+                <p>
+                    This tool is provided for educational and verification purposes. We encourage responsible use:
+                </p>
+                <ul>
+                    <li>Do not use detection results to harass or unfairly discredit individuals</li>
+                    <li>Be aware that even authentic content can be flagged as suspicious</li>
+                    <li>Consider the context and source of media before making judgments</li>
+                    <li>Share this tool to help others verify suspicious content</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
