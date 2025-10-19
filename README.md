@@ -112,11 +112,3 @@ The model training process involves:
 2. Extracting frames from these videos
 3. Training a deep learning model to distinguish between real and fake faces
 4. Saving the trained model for use in the web application
-
-## License
-
-[Add your license information here]
-
-## Contributing
-
-[Add contribution guidelines here]
